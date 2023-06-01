@@ -49,9 +49,12 @@
   hosts: all
   become: yes
   tasks:
-    - name: pull&run containter
-      docker_container:
-        name: task
-        image: cotsom/lfi
-        ports:
-          - "8000:5000"
+    - name: copy directory
+      synchronize:
+        src: /home/cotsom/Desktop/vsfi/vpn
+        dest: /home/vagrant/
+        recursive: yes  
+    - name: up tasks
+      community.docker.docker_compose:
+        project_src: /home/vagrant/vpn
+        state: present
