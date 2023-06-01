@@ -1,0 +1,57 @@
+- name: install docker
+  hosts: all
+  become: yes
+  tasks:
+    - name: update packs
+      apt:
+        update_cache: yes
+    - name: install dependences
+      apt:
+        state: present
+        update_cache: yes
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+          - python3-setuptools
+    - name: install docker gpg key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: add docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+    - name: install docker ce
+      apt:
+        state: present
+        update_cache: yes
+        name:
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io 
+          - docker-buildx-plugin 
+          - docker-compose-plugin
+    - name: install docker modules for python
+      pip:
+        name:
+          - docker
+          - docker-compose
+    - name: Install docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.12.2/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '+x'
+
+- name: delivery tasks
+  hosts: all
+  become: yes
+  tasks:
+    - name: pull&run containter
+      docker_container:
+        name: task
+        image: cotsom/lfi
+        ports:
+          - "8000:5000"
