@@ -1,0 +1,14 @@
+route:
+  receiver: 'bogdan'
+
+receivers:
+  - name: 'bogdan'
+    telegram_configs:
+    - send_resolved: true
+      api_url: https://api.telegram.org
+      bot_token: ${BOT_TOKEN}
+      chat_id: ${CHAT_ID}
+      parse_mode: HTML
+      http_config:
+        follow_redirects: true
+        enable_http2: false
