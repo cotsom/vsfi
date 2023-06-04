@@ -1,0 +1,5 @@
+zone "vsfi.local" {
+    type master;
+    file "/etc/bind/zones/vsfi.local.db";
+    allow-transfer { none; };
+};
