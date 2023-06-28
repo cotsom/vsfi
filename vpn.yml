@@ -1,0 +1,8 @@
+---
+- name: Install vpn
+  hosts: vpn
+  become: true
+  pre_tasks:
+  roles:
+    - geerlingguy.docker
+    - vpn

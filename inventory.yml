@@ -15,4 +15,7 @@ all:
         monitoring:
           hosts:
             slave-1:
+        vpn:
+          hosts:
+            slave-1:
       hosts:

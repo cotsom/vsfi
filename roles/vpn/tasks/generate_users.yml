@@ -1,0 +1,24 @@
+---
+- name: Check if user exist user:{{ item }}
+  stat:
+    path: "{{ docker_vpn_folder }}/users/{{ item }}.ovpn"
+  register: user_file
+
+- name: build-client-full user:{{ item }}
+  command:
+    cmd: docker compose run --rm openvpn easyrsa build-client-full {{ item }} nopass
+    chdir: "{{ docker_vpn_folder }}"
+  when: not user_file.stat.exists
+
+- name: get config user:{{ item }}
+  shell:
+    cmd: docker compose run --rm openvpn ovpn_getclient {{ item }} > ./users/{{ item }}.ovpn
+    chdir: "{{ docker_vpn_folder }}"
+  when: not user_file.stat.exists
+
+- name: Download configs user:{{ item }}
+  ansible.builtin.fetch:
+    src: "{{ docker_vpn_folder }}/users/{{ item }}.ovpn"
+    dest: output/vpn_users/{{ item }}.ovpn
+    flat: yes
+  when: vpn_download_configs

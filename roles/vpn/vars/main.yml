@@ -1,0 +1,3 @@
+---
+# vars file for vpn
+docker_vpn_folder: "/docker/vpn"

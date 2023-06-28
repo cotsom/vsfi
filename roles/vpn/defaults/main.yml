@@ -1,0 +1,7 @@
+---
+# defaults file for vpn
+easyrsa_req_cn: "Travis-CI Test CA"
+
+users: [ 'moo', 'foo' ]
+
+vpn_download_configs: false

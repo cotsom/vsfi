@@ -1,0 +1,68 @@
+---
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker vpn folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_vpn_folder }}"
+    - "{{ docker_vpn_folder }}/users"
+    - "{{ docker_vpn_folder }}/data"
+
+- name: Copy files to VM
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ docker_vpn_folder }}/{{ item }}"
+  loop:
+    - docker-compose.yml
+    
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ docker_vpn_folder }}"
+  register: docker_compose_up
+
+- name: Print docker compose up output
+  ansible.builtin.debug:
+    msg: "{{ docker_compose_up.stdout }}"
+
+- name: Check if ovpn already configured
+  stat:
+    path: "{{ docker_vpn_folder }}/data/pki/ca.crt"
+  register: check_pki_exists
+
+- name: Get config
+  ansible.builtin.command:
+    cmd: "docker compose run --rm openvpn ovpn_genconfig -u udp://{{ ansible_host }}"
+    chdir: "{{ docker_vpn_folder }}"
+  register: docker_vpn_config
+  when: not check_pki_exists.stat.exists
+
+# - name: Print docker vpn config
+#   ansible.builtin.debug:
+#     msg: "{{ docker_vpn_config.stdout }}"
+
+- name: Init pki
+  ansible.builtin.command:
+    cmd: "docker compose run -e EASYRSA_BATCH=1 -e EASYRSA_REQ_CN='{{ easyrsa_req_cn }}' --rm -it openvpn ovpn_initpki nopass"
+    chdir: "{{ docker_vpn_folder }}"
+  register: docker_vpn_config_initpki
+  when: not check_pki_exists.stat.exists
+
+# - name: Print init pki output
+#   ansible.builtin.debug:
+#     msg: "{{ docker_vpn_config_initpki.stdout }}"
+
+- name: Create users
+  include_tasks: generate_users.yml
+  loop: "{{ users }}"
