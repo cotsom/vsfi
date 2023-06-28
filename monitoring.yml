@@ -1,0 +1,8 @@
+---
+- name: Install Monitoring stack
+  hosts: monitoring
+  become: true
+  pre_tasks:
+  roles:
+    - geerlingguy.docker
+    - monitoring

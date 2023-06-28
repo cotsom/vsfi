@@ -12,4 +12,7 @@ all:
         docker-registry:
           hosts:
             slave-1:
+        monitoring:
+          hosts:
+            slave-1:
       hosts:

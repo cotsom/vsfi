@@ -1,0 +1,3 @@
+---
+# vars file for monitoring
+docker_monitoring_folder: "/docker/monitoring"

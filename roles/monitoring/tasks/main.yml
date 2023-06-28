@@ -1,0 +1,38 @@
+---
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker monitoring folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_monitoring_folder }}"
+
+- name: Copy files to VM
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ docker_monitoring_folder }}/{{ item }}"
+  loop:
+    - docker-compose.yml
+    - prometheus.yml
+    - alert.rules
+    - alertmanager.yml
+    
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ docker_monitoring_folder }}"
+  register: docker_compose_up
+
+- name: Print docker compose up output ( debug )
+  ansible.builtin.debug:
+    msg: "{{ docker_compose_up }}"
