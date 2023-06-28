@@ -1,0 +1,15 @@
+all:
+  hosts:
+    slave-1:
+      ansible_host: 10.200.106.203
+  vars:
+    ansible_user: user
+    ansible_password: eve@123
+    ansible_become_password: eve@123
+  children:
+    docker:
+      children:
+        docker-registry:
+          hosts:
+            slave-1:
+      hosts:

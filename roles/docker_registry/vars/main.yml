@@ -1,0 +1,3 @@
+---
+# vars file for docker_registry
+docker_registry_folder: "/docker/docker_registry"

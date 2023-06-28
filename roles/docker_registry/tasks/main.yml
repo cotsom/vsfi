@@ -1,0 +1,59 @@
+---
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker registry folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_registry_folder }}"
+    - "{{ docker_registry_folder }}/data"
+    - "{{ docker_registry_folder }}/auth"
+
+- name: Copy auth file
+  ansible.builtin.copy:
+    src: registry.password
+    dest: "{{ docker_registry_folder }}/auth/registry.password"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Ensure Docker is installed
+  become: true
+  ansible.builtin.package:
+    name: docker-ce
+    state: present
+
+- name: Ensure Docker service is running
+  become: true
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ensure Docker Registry container is running
+  become: true
+  ansible.builtin.docker_container:
+    name: registry
+    image: registry:2
+    state: started
+    restart_policy: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - "{{ docker_registry_folder  }}/data:/data"
+      - "{{ docker_registry_folder }}/auth:/auth"
+    env:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
