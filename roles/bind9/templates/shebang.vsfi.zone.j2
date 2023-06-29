@@ -1,6 +1,6 @@
 $TTL 2d
 
-@               IN      SOA     ns1.vsfi.local. root.vsfi.local. (
+@               IN      SOA     ns1.shebang.vsfi.local. root.shebang.vsfi.local. (
                                 {{ dns_marker_value }}      ; serial
                                 12h             ; refresh
                                 15m             ; retry
@@ -8,7 +8,7 @@ $TTL 2d
                                 2h              ; minimum ttl
                                 )
 
-                IN      NS      ns1.vsfi.local.
+                IN      NS      ns1.shebang.vsfi.local.
 
 ns1             IN      A       {{ ansible_host }}
 

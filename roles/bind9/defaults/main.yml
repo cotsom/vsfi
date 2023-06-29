@@ -2,9 +2,9 @@
 # defaults file for bind9
 
 dns_records:
-  - fqdn: def1.vsfi.local
+  - fqdn: def1.shebang.vsfi.local
     ip: 10.200.50.55
     type: A
-  - fqdn: def2.vsfi.local
+  - fqdn: def2.shebang.vsfi.local
     ip: 10.200.50.6
     type: A

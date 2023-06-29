@@ -54,8 +54,8 @@
 # Честно не понимаю в моменте как это сработало, но работает
 - name: Copy zone template ( crutch )
   ansible.builtin.template:
-      src: templates/vsfi.zone.j2
-      dest: "{{ docker_bind9_folder }}/records/vsfi.zone"
+      src: templates/shebang.vsfi.zone.j2
+      dest: "{{ docker_bind9_folder }}/records/shebang.vsfi.zone"
   vars:
     dns_marker_value: 0
   register: dns_register_copy_zone_template_crutch
@@ -72,8 +72,8 @@
 
 - name: Copy zone template
   ansible.builtin.template:
-      src: templates/vsfi.zone.j2
-      dest: "{{ docker_bind9_folder }}/records/vsfi.zone"
+      src: templates/shebang.vsfi.zone.j2
+      dest: "{{ docker_bind9_folder }}/records/shebang.vsfi.zone"
 
 - name: Docker Compose up
   ansible.builtin.command:
