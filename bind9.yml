@@ -1,0 +1,8 @@
+---
+- name: Install bind9 stack
+  hosts: bind9
+  become: true
+  pre_tasks:
+  roles:
+    - geerlingguy.docker
+    - bind9

@@ -1,0 +1,92 @@
+---
+# tasks file for bind9
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker bind9 folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_bind9_folder }}"
+    - "{{ docker_bind9_folder }}/config"
+    - "{{ docker_bind9_folder }}/records"
+
+- name: Copy files to VM
+  ansible.builtin.copy:
+    src: "{{ item.file }}"
+    dest: "{{ docker_bind9_folder }}/{{ item.folder }}/{{ item.file }}"
+  loop:
+    - folder: ./
+      file: docker-compose.yml
+    - folder: ./config/
+      file: named.conf
+
+- name: Check serial marker esists 
+  stat:
+    path: "{{ docker_bind9_folder }}/dns_serial_marker"
+  register: dns_marker_file
+
+- name: Read marker if exists
+  command: "cat {{ docker_bind9_folder }}/dns_serial_marker"
+  register: dns_register_marker
+  changed_when: false
+  when: dns_marker_file.stat.exists
+
+- name: Set seial marker value 
+  set_fact:
+    dns_marker_value: "{{ dns_register_marker.stdout }}"
+  when: dns_marker_file.stat.exists
+
+- name: Set seial marker 1 if not exists
+  set_fact:
+    dns_marker_value: "1"
+  when: not dns_marker_file.stat.exists
+
+# Честно не понимаю в моменте как это сработало, но работает
+- name: Copy zone template ( crutch )
+  ansible.builtin.template:
+      src: templates/vsfi.zone.j2
+      dest: "{{ docker_bind9_folder }}/records/vsfi.zone"
+  vars:
+    dns_marker_value: 0
+  register: dns_register_copy_zone_template_crutch
+
+- name: increment marker when zone changed
+  set_fact:
+    dns_marker_value: "{{ dns_marker_value|int + 1 }}"
+  when: dns_register_copy_zone_template_crutch is changed
+
+- name: Write new marker to file
+  copy:
+    content: "{{ dns_marker_value }}"
+    dest: "{{ docker_bind9_folder }}/dns_serial_marker"
+
+- name: Copy zone template
+  ansible.builtin.template:
+      src: templates/vsfi.zone.j2
+      dest: "{{ docker_bind9_folder }}/records/vsfi.zone"
+
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ docker_bind9_folder }}"
+  register: docker_compose_up
+
+- name: Print docker compose up output ( debug )
+  ansible.builtin.debug:
+    msg: "{{ docker_compose_up }}"
+
+- name: bind9 restart when zone changed
+  ansible.builtin.command:
+    cmd: "docker compose restart bind9"
+    chdir: "{{ docker_bind9_folder }}"
+  when: dns_register_copy_zone_template_crutch is changed
