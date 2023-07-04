@@ -1,0 +1,3 @@
+---
+# vars file for pki
+docker_pki_folder: "/docker/pki"

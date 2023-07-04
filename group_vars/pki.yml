@@ -1,0 +1,6 @@
+
+pki_dns_name: shebang.vsfi
+pki_step_ca_password: qwerty
+
+pki_fqdns: [ 'biba.shebang.vsfi', 'boba.shebang.vsfi' ]
+pki_pull_certs: true

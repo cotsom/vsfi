@@ -1,0 +1,14 @@
+version: '3'  
+services:
+  pki:
+    image: smallstep/step-ca
+    environment:
+      - DOCKER_STEPCA_INIT_NAME=Smallstep
+      - DOCKER_STEPCA_INIT_DNS_NAMES=localhost,{{ pki_dns_name }}
+      - DOCKER_STEPCA_INIT_PASSWORD={{ pki_step_ca_password }}
+    ports:
+      - "9000:9000"
+    volumes:
+      - step:/home/step
+volumes:
+  step:

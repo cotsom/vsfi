@@ -1,0 +1,78 @@
+---
+# tasks file for pki
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker pki folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_pki_folder }}"
+    - "{{ docker_pki_folder }}/certs"
+
+# - name: Copy files to VM
+#   ansible.builtin.copy:
+#     src: "{{ item.file }}"
+#     dest: "{{ docker_pki_folder }}/{{ item.folder }}/{{ item.file }}"
+#   loop:
+#     - folder: ./
+#       file: docker-compose.yml
+#     # - folder: ./config/
+#     #   file: named.conf
+
+- name: Template files
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ docker_pki_folder }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - "docker-compose.yml"
+    - "password.txt"
+
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ docker_pki_folder }}"
+  register: docker_compose_up
+
+- name: Install step-cli
+  ansible.builtin.apt:
+    deb: https://dl.smallstep.com/gh-release/cli/docs-cli-install/v0.23.4/step-cli_0.23.4_amd64.deb
+
+# - name: Check if fingerprint already set
+#   ansible.builtin.command:
+#     cmd: step ca health --ca-url https://localhost:9000
+#   failed_when: false
+#   register: pki_register_check_fingerprint
+
+- name: Check if fingerprint already set
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.step/certs/root_ca.crt"
+  register: pki_register_ca_cert
+
+- name: get CA fingerprint
+  ansible.builtin.command:
+    cmd: docker compose run pki step certificate fingerprint certs/root_ca.crt
+    chdir: "{{ docker_pki_folder }}"
+  when: not pki_register_ca_cert.stat.exists
+  register: pki_register_ca_finderprint
+
+- name: set CA fingerprint
+  ansible.builtin.command:
+    cmd: step ca bootstrap --ca-url https://localhost:9000 --fingerprint {{ pki_register_ca_finderprint.stdout }}
+  when: not pki_register_ca_cert.stat.exists
+
+- name: Create certs
+  include_tasks: generate_cersts.yml
+  loop: "{{ pki_fqdns }}"

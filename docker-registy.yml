@@ -1,7 +1,7 @@
 ---
 - name: Install Docker Registry
-  hosts: docker-registry
-  become: true
+  hosts: docker_registry
+  # become: true
   pre_tasks:
   roles:
     - geerlingguy.docker

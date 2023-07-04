@@ -1,0 +1,7 @@
+---
+# defaults file for pki
+pki_dns_name: vsfi
+pki_step_ca_password: qwerty
+
+pki_fqdns: [ 'default1.local', 'default2.local' ]
+pki_pull_certs: false

@@ -9,7 +9,7 @@ all:
   children:
     docker:
       children:
-        docker-registry:
+        docker_registry:
           hosts:
             slave-1:
         monitoring:
@@ -21,14 +21,19 @@ all:
         bind9:
           hosts:
             slave-1:
+        pki:
+          hosts:
+            slave-1:
       hosts:
     k3s_cluster:
       children:
-        home-lab:
+        master:
+          hosts:
+            kube-2:
+              ansible_host: 10.200.106.203
+        node:        
           hosts:
             kube-0:
               ansible_host: 10.200.106.201
             kube-1:
               ansible_host: 10.200.106.202
-            kube-2:
-              ansible_host: 10.200.106.203

@@ -1,0 +1,28 @@
+---
+- name: Check if cert exist cert:{{ item }}
+  stat:
+    path: "{{ docker_pki_folder }}/certs/{{ item }}.crt"
+  register: sert_file
+
+# не юзаю экспект т.к. его тут надо докачиать, трафик ограничен
+- name: create cert for {{ item }}
+  ansible.builtin.shell:
+    cmd: step ca certificate {{ item }} certs/{{ item }}.crt certs/{{ item }}.key --password-file password.txt
+    chdir: "{{ docker_pki_folder }}"
+    # responses:
+    #   (?i)Please enter the password to decrypt the provisioner key: "{{ pki_step_ca_password }}"
+  when: not sert_file.stat.exists
+
+- name: Download config cert:{{ item }}
+  ansible.builtin.fetch:
+    src: "{{ docker_pki_folder }}/certs/{{ item }}.crt"
+    dest: output/pki_certs/{{ item }}.crt
+    flat: yes
+  when: pki_pull_certs
+
+- name: Download config key:{{ item }}
+  ansible.builtin.fetch:
+    src: "{{ docker_pki_folder }}/certs/{{ item }}.key"
+    dest: output/pki_certs/{{ item }}.key
+    flat: yes
+  when: pki_pull_certs

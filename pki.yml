@@ -1,0 +1,8 @@
+---
+- name: Install pki
+  hosts: pki
+  become: true
+  pre_tasks:
+  roles:
+    - geerlingguy.docker
+    - pki
