@@ -1,0 +1,36 @@
+---
+# tasks file for dhcp
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg:
+    # - bind9
+    - isc-dhcp-server
+
+- name: Template dhcpd.conf
+  ansible.builtin.template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  register: dhcp_register_copy_conf
+
+- name: Template key
+  ansible.builtin.template:
+    src: rndc.key.j2
+    dest: /etc/dhcp/rndc.key
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set IPv4 interface
+  ansible.builtin.lineinfile:
+    path:  /etc/default/isc-dhcp-server
+    regexp: '^INTERFACESv4='
+    line: INTERFACESv4="{{ ansible_default_ipv4.interface }}"
+
+- name: Restart DHCP
+  ansible.builtin.systemd:
+    name: isc-dhcp-server
+    state: restarted
+  when: dhcp_register_copy_conf.changed

@@ -1,0 +1,31 @@
+
+default-lease-time 600;
+max-lease-time 7200;
+
+ddns-update-style interim;
+ddns-updates on;
+ddns-update-style interim;
+ignore client-updates;
+update-static-leases on;
+
+key DHCP_UPDATER {
+ algorithm hmac-sha256;
+ secret {{ _dhcp_secret }};
+}
+local-address {{ dhcp_server }};
+
+zone {{ dhcp_zone_name }}. { 
+ primary {{ dhcp_server }}; 
+ key DHCP_UPDATER; 
+}
+
+subnet {{ _dhcp_network }} netmask {{ _dhcp_netmask }} {
+ authoritative;
+ range {{ dhcp_range_left }} {{ dhcp_range_right }};
+ option routers {{ dhcp_uplink_gateway }};
+ option subnet-mask {{ _dhcp_netmask }};
+ option broadcast-address {{ _dhcp_broadcast }};
+ option domain-name-servers {{ dhcp_dns_address }};
+ option domain-name "{{ dhcp_zone_name }}";
+ ddns-domainname "{{ dhcp_zone_name }}.";
+}

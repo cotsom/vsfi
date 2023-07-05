@@ -1,3 +1,5 @@
 ---
 # vars file for bind9
-docker_bind9_folder: "/docker/bind9"
+_docker_bind9_folder: "/docker/bind9"
+
+_dns_secret: "bB4K6W9+SRkATKskqnQqtR5RcqhkCa+lq5dt58WmwwU="

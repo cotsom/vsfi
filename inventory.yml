@@ -1,39 +1,64 @@
 all:
   hosts:
     slave-1:
+      ansible_host: 10.200.106.201
+    slave-2:
+      ansible_host: 10.200.106.202
+    slave-3:
       ansible_host: 10.200.106.203
   vars:
-    ansible_user: user
-    ansible_password: eve@123
-    ansible_become_password: eve@123
   children:
+    home-lab:
+      hosts:
+        slave-1:
+        slave-2:
+        slave-3:
+      vars:
+        ansible_user: user
+        ansible_password: eve@123
+        ansible_become_password: eve@123
+    # miron:
+    #   hosts:
+    #     miron-1:
+    #   vars:
+    #     ansible_user: user
+    #     ansible_password: eve@123
+    #     ansible_become_password: eve@123
     docker:
       children:
         docker_registry:
           hosts:
-            slave-1:
+            slave-3:
         monitoring:
           hosts:
-            slave-1:
+            slave-3:
         vpn:
           hosts:
-            slave-1:
+            slave-3:
         bind9:
           hosts:
-            slave-1:
+            slave-3:
+            # miron-1:
         pki:
           hosts:
+            slave-3:
+        haproxy:
+          hosts:
             slave-1:
+            slave-2:
+            slave-3:
+        dhcp:
+          hosts:
+            slave-3:
+              dhcp_subnet: "10.200.106.0/24"
+            # miron-1:
       hosts:
     k3s_cluster:
       children:
         master:
           hosts:
-            kube-2:
-              ansible_host: 10.200.106.203
+            slave-3:
         node:        
           hosts:
-            kube-0:
-              ansible_host: 10.200.106.201
-            kube-1:
-              ansible_host: 10.200.106.202
+            slave-1:
+            slave-2:

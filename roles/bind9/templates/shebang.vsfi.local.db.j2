@@ -1,16 +1,20 @@
-$TTL 2d
-
-@               IN      SOA     ns1.shebang.vsfi.local. root.shebang.vsfi.local. (
+$ORIGIN .
+$TTL 86400	; 1 day
+{{ dns_zone_name }}               IN      SOA     {{ dns_zone_name }}. admin.vsfi.local  (
                                 {{ dns_marker_value }}      ; serial
                                 12h             ; refresh
                                 15m             ; retry
                                 3w              ; expire
                                 2h              ; minimum ttl
                                 )
-
-                IN      NS      ns1.shebang.vsfi.local.
-
-ns1             IN      A       {{ ansible_host }}
+			NS	ns.{{ dns_zone_name }}.
+			NS	{{ dns_zone_name }}.
+			NS	localhost.
+            A   {{ dns_gateway }}
+			A	{{ dns_server }}
+$ORIGIN {{ dns_zone_name }}.
+$TTL 300	; 5 minutes
+ns          IN      A       {{ dns_server }}
 
 {% for item in dns_records %}
 {{ item.fqdn }}.      IN      {{ item.type }}       {{ item.ip }}

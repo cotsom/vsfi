@@ -1,0 +1,24 @@
+// options {
+//     recursion yes;
+//     listen-on { any; };
+//     allow-query { any; };
+//     # filter-aaaa-on-v4 yes;
+//     forwarders {
+//             8.8.8.8;
+//             4.4.4.4;
+//     };
+// };
+
+// zone "shebang.vsfi.local" IN {
+//     type master;
+//     file "/var/lib/bind/shebang.vsfi.zone";
+// };
+
+controls {
+        inet 127.0.0.1 port 953 allow { 127.0.0.1; };
+};
+
+include "/etc/bind/named.conf.options";
+include "/etc/bind/named.conf.local";
+// include "/etc/bind/named.conf.default-zones";
+

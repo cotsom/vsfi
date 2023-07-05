@@ -1,0 +1,9 @@
+---
+# vars file for dhcp
+_dhcp_address: "{{ dhcp_subnet | ansible.utils.ipaddr('address') }}" # 10.5.104.2
+_dhcp_network: "{{ dhcp_subnet | ansible.utils.ipaddr('network') }}" # 10.5.104.0
+_dhcp_netmask: "{{ dhcp_subnet | ansible.utils.ipaddr('netmask') }}" # 255.255.255.0
+_dhcp_broadcast: "{{ dhcp_subnet | ansible.utils.ipaddr('broadcast') }}" # 10.5.104.255
+# broad
+
+_dhcp_secret: "bB4K6W9+SRkATKskqnQqtR5RcqhkCa+lq5dt58WmwwU="

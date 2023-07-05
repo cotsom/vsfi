@@ -1,0 +1,23 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+include "/etc/bind/rndc.key";
+
+zone "{{ dns_zone_name }}" {
+    type master;
+    file "/etc/bind/zones/{{ dns_zone_name }}.db";
+    allow-transfer { {{ dns_server }}; };
+    allow-update { key DHCP_UPDATER; };
+};
+
+// // 10.5.104.2
+// zone "2.104.10.in-addr.arpa" {
+//     type master;
+//     file "/etc/bind/zones/db.10.5.104.2";
+//     allow-transfer { 10.5.104.2; };
+//     allow-update { key DHCP_UPDATER; };
+// };

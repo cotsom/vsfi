@@ -1,0 +1,9 @@
+---
+- name: Install dhcp and dns
+  hosts: dhcp
+  become: true
+  pre_tasks:
+  roles:
+    - dhcp
+    - geerlingguy.docker
+    - bind9

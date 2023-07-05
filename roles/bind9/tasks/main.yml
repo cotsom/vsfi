@@ -16,27 +16,45 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
   loop:
-    - "{{ docker_bind9_folder }}"
-    - "{{ docker_bind9_folder }}/config"
-    - "{{ docker_bind9_folder }}/records"
+    - "{{ _docker_bind9_folder }}"
+    - "{{ _docker_bind9_folder }}/config"
+    - "{{ _docker_bind9_folder }}/records"
 
 - name: Copy files to VM
   ansible.builtin.copy:
     src: "{{ item.file }}"
-    dest: "{{ docker_bind9_folder }}/{{ item.folder }}/{{ item.file }}"
+    dest: "{{ _docker_bind9_folder }}/{{ item.folder }}/{{ item.file }}"
   loop:
     - folder: ./
       file: docker-compose.yml
+    - folder: ./
+      file: usr.sbin.named
+    # - folder: ./config/
+    #   file: named.confx
+
+- name: Template conf to VM
+  ansible.builtin.template:
+      src: "{{ item.file }}.j2"
+      dest: "{{ _docker_bind9_folder }}/{{ item.folder }}/{{ item.file }}"
+  loop:
     - folder: ./config/
       file: named.conf
+    - folder: ./config/
+      file: named.conf.local
+    - folder: ./config/
+      file: named.conf.options
+    - folder: ./config/
+      file: named.conf.default-zones
+    - folder: ./config/
+      file: rndc.key
 
 - name: Check serial marker esists 
   stat:
-    path: "{{ docker_bind9_folder }}/dns_serial_marker"
+    path: "{{ _docker_bind9_folder }}/dns_serial_marker"
   register: dns_marker_file
 
 - name: Read marker if exists
-  command: "cat {{ docker_bind9_folder }}/dns_serial_marker"
+  command: "cat {{ _docker_bind9_folder }}/dns_serial_marker"
   register: dns_register_marker
   changed_when: false
   when: dns_marker_file.stat.exists
@@ -54,8 +72,8 @@
 # Честно не понимаю в моменте как это сработало, но работает
 - name: Copy zone template ( crutch )
   ansible.builtin.template:
-      src: templates/shebang.vsfi.zone.j2
-      dest: "{{ docker_bind9_folder }}/records/shebang.vsfi.zone"
+      src: "shebang.vsfi.local.db.j2"
+      dest: "{{ _docker_bind9_folder }}/records/shebang.vsfi.local.db"
   vars:
     dns_marker_value: 0
   register: dns_register_copy_zone_template_crutch
@@ -68,18 +86,19 @@
 - name: Write new marker to file
   copy:
     content: "{{ dns_marker_value }}"
-    dest: "{{ docker_bind9_folder }}/dns_serial_marker"
+    dest: "{{ _docker_bind9_folder }}/dns_serial_marker"
 
 - name: Copy zone template
   ansible.builtin.template:
-      src: templates/shebang.vsfi.zone.j2
-      dest: "{{ docker_bind9_folder }}/records/shebang.vsfi.zone"
+      src: "shebang.vsfi.local.db.j2"
+      dest: "{{ _docker_bind9_folder }}/records/shebang.vsfi.local.db"
 
 - name: Docker Compose up
   ansible.builtin.command:
     cmd: "docker compose up -d"
-    chdir: "{{ docker_bind9_folder }}"
+    chdir: "{{ _docker_bind9_folder }}"
   register: docker_compose_up
+  tags: docker_up
 
 - name: Print docker compose up output ( debug )
   ansible.builtin.debug:
@@ -88,5 +107,5 @@
 - name: bind9 restart when zone changed
   ansible.builtin.command:
     cmd: "docker compose restart bind9"
-    chdir: "{{ docker_bind9_folder }}"
+    chdir: "{{ _docker_bind9_folder }}"
   when: dns_register_copy_zone_template_crutch is changed

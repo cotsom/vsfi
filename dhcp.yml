@@ -1,0 +1,7 @@
+---
+- name: Install dhcp
+  hosts: dhcp
+  become: true
+  pre_tasks:
+  roles:
+    - dhcp

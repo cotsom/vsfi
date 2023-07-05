@@ -12,5 +12,6 @@ services:
     volumes:
       - ./config:/etc/bind
       - ./cache:/var/cache/bind
-      - ./records:/var/lib/bind
-    restart: unless-stopped
+      - ./records/shebang.vsfi.local.db:/etc/bind/zones/shebang.vsfi.local.db
+      - ./usr.sbin.named:/etc/apparmor.d/usr.sbin.named
+    restart: always

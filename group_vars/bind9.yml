@@ -1,13 +1,13 @@
 dns_records:
   - fqdn: qq.shebang.vsfi.local
-    ip: 10.200.50.55
+    ip: 10.200.106.55
     type: A
   - fqdn: ff.shebang.vsfi.local
-    ip: 10.200.50.9
+    ip: 10.200.106.9
     type: A
   - fqdn: hehe.shebang.vsfi.local
-    ip: 10.200.50.99
+    ip: 10.200.106.99
     type: A
   - fqdn: bbbb.shebang.vsfi.local
-    ip: 10.200.50.86
+    ip: 10.200.106.86
     type: A

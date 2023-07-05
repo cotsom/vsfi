@@ -1,0 +1,13 @@
+---
+# defaults file for dhcp
+dhcp_server: "{{ ansible_host }}"
+dhcp_dns_address: "{{ ansible_host }}"
+dhcp_zone_name: "shebang.vsfi.local"
+dhcp_subnet: "10.5.104.0/24"
+
+
+dhcp_uplink_gateway:  "{{ dhcp_subnet | ansible.utils.ipmath(1) }}" # 1 of subnet
+
+dhcp_range_left: "{{ dhcp_subnet | ansible.utils.ipmath(10) }}" # from 10
+dhcp_range_right:  "{{ dhcp_subnet | ansible.utils.ipmath(50) }}" # for 50
+

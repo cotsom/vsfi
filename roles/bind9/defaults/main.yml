@@ -1,5 +1,9 @@
 ---
 # defaults file for bind9
+# при изменении сломается из за имени шаблона
+dns_zone_name: "shebang.vsfi.local"
+dns_server: "{{ ansible_host }}"
+dns_gateway: "{{ ansible_default_ipv4.gateway }}"
 
 dns_records:
   - fqdn: def1.shebang.vsfi.local
