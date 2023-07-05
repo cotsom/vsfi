@@ -16,6 +16,8 @@ $ORIGIN {{ dns_zone_name }}.
 $TTL 300	; 5 minutes
 ns          IN      A       {{ dns_server }}
 
+{% if dns_add_static %}
 {% for item in dns_records %}
 {{ item.fqdn }}.      IN      {{ item.type }}       {{ item.ip }}
 {% endfor %}
+{% endif %}

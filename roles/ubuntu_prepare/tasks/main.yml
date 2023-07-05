@@ -1,0 +1,13 @@
+---
+# tasks file for ubuntu_prepare
+- name: Config default DNS
+  ansible.builtin.import_tasks:
+    - config_default_dns.yml
+
+- name: Install default packages
+  ansible.builtin.import_tasks:
+    - install_default_packages.yml
+
+- name: Add apt proxy
+  ansible.builtin.import_tasks:
+    - add_apt_proxy.yml

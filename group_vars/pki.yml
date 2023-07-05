@@ -1,6 +1,6 @@
 
-pki_dns_name: shebang.vsfi
+pki_dns_name: shebang.vsfi.local
 pki_step_ca_password: qwerty
 
-pki_fqdns: [ 'biba.shebang.vsfi', 'boba.shebang.vsfi' ]
+pki_fqdns: [ 'site1.shebang.vsfi.local', 'site2.shebang.vsfi.local' ]
 pki_pull_certs: true

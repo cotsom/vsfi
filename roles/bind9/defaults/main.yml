@@ -5,6 +5,7 @@ dns_zone_name: "shebang.vsfi.local"
 dns_server: "{{ ansible_host }}"
 dns_gateway: "{{ ansible_default_ipv4.gateway }}"
 
+dns_add_static: true
 dns_records:
   - fqdn: def1.shebang.vsfi.local
     ip: 10.200.50.55

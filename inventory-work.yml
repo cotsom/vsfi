@@ -1,0 +1,48 @@
+all:
+  hosts:
+    dhcp_host:
+      ansible_host: 10.5.104.2
+    pki_host:
+      ansible_host: 10.5.104.4
+    # dev_proxy:
+      # ansible_host: 10.200.106.203
+  vars:
+    ansible_user: root
+  children:
+    vsfi_infra:
+      docker:
+        children:
+          bind9:
+            hosts:
+              dhcp_host:
+          pki:
+            hosts:
+              pki_host:
+          dhcp:
+            hosts:
+              dhcp_host:
+            vars:
+              dhcp_subnet: "10.5.104.0/24"
+          # haproxy:
+          #   hosts:
+          #     slave-1:
+          # vpn:
+          #   hosts:
+          #     slave-3:
+          # monitoring:
+          #   hosts:
+          #     slave-3:
+      miron_infra:
+        children:
+          # docker_registry:
+          #   hosts:
+          #     slave-3:
+          # k3s_cluster:
+          #   children:
+          #     master:
+          #       hosts:
+          #         slave-3:
+          #     node:        
+          #       hosts:
+          #         slave-1:
+          #         slave-2:
