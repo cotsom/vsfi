@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  haproxy:
+      image: haproxy:alpine3.17
+      container_name: haproxy
+      ports:
+        # - "7000:7000"
+        # - "5000:5000"
+        - "8000:80"
+      volumes:
+        - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      # networks:
+      # - web_zone
+  microbot1:
+    container_name: microbot1
+    image: dontrebootme/microbot:v1
+    # ports:
+    #   - 8000:80
+    # networks:
+    #   - web_zone
+  microbot2:
+    container_name: microbot2
+    image: dontrebootme/microbot:v1
+    # ports:
+    #   - 8001:80
+    # networks:
+    #   - web_zone
+# networks:
+#   web_zone:
+#         external: true
