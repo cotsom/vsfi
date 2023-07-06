@@ -1,5 +1,16 @@
 ---
 # tasks file for bind9
+- name: Stop default ubuntu DNS server
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: stopped
+
+- name: Write nameserver
+  copy:
+    dest: /etc/resolv.conf
+    content: |
+      domain           {{ dns_zone_name }}
+      nameserver       {{ dns_server }}
 - name: Create Docker folder
   ansible.builtin.file:
     path: /docker

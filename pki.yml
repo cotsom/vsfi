@@ -4,5 +4,6 @@
   become: true
   pre_tasks:
   roles:
+    - ubuntu_prepare
     - geerlingguy.docker
     - pki

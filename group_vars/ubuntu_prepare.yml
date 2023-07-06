@@ -1,0 +1,5 @@
+prepare_dns_domain: shebang.vsfi.local
+prepare_dns_server: 10.5.104.2
+prepare_dns_upserver: 8.8.8.8
+
+prepare_apt_cache_server: 10.5.104.20:3142

@@ -1,0 +1,8 @@
+---
+- name: Install hashicorp/vault
+  hosts: vault
+  become: true
+  pre_tasks:
+  roles:
+    # - geerlingguy.docker
+    - vault

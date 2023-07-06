@@ -1,13 +1,21 @@
 ---
 # tasks file for ubuntu_prepare
-- name: Config default DNS
-  ansible.builtin.import_tasks:
-    - config_default_dns.yml
+# - name: Add apt proxy
+#   copy:
+#     dest: /etc/apt/apt.conf.d/00aptproxy
+#     content: |
+#       Acquire::http::Proxy "http://{{ prepare_apt_cache_server }}:3142";
 
-- name: Install default packages
-  ansible.builtin.import_tasks:
-    - install_default_packages.yml
+- name: apt update cache
+  ansible.builtin.apt:
+    update_cache: yes
 
-- name: Add apt proxy
-  ansible.builtin.import_tasks:
-    - add_apt_proxy.yml
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg:
+    - tmux
+    - curl
+# - python3-pip
+  
+# - name: Install pip packages
+  

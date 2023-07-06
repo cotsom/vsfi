@@ -1,0 +1,32 @@
+---
+- name: Check if cert exist cert:{{ item }}
+  stat:
+    path: "{{ docker_pki_folder }}/certs/{{ item }}.crt"
+  register: sert_file
+
+- name: Get cert serial number
+  ansible.builtin.shell:
+    cmd: step certificate inspect --format=json certs/{{ item }}.crt | jq .serial_number | tr -d "\""
+    chdir: "{{ docker_pki_folder }}"
+    executable: /bin/bash
+  register: pki_register_revoke_serial_number
+  tags: serial
+
+  # не юзаю экспект т.к. его тут надо докачиать, трафик ограничен
+- name: revoke cert {{ item }}
+  ansible.builtin.expect:
+    command: step ca revoke {{ pki_register_revoke_serial_number.stdout }}
+    chdir: "{{ docker_pki_folder }}"
+    responses:
+      (?i)Please enter the password to decrypt the provisioner key: "{{ pki_step_ca_password }}"
+  when: sert_file.stat.exists
+
+- name: move revoked cert to specical folder
+  ansible.builtin.command:
+    cmd: mv certs/{{ item }}.crt certs/revoked/{{ item }}.crt
+    chdir: "{{ docker_pki_folder }}"
+  
+- name: move revoked key to specical folder
+  ansible.builtin.command:
+    cmd: mv certs/{{ item }}.key certs/revoked/{{ item }}.key
+    chdir: "{{ docker_pki_folder }}"

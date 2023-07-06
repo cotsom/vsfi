@@ -1,5 +1,16 @@
 ---
 # tasks file for pki
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg:
+    - jq
+    - python3-pip
+    update_cache: yes
+
+- name: Install pexpect
+  ansible.builtin.pip:
+    name: pexpect
+
 - name: Create Docker folder
   ansible.builtin.file:
     path: /docker
@@ -18,8 +29,9 @@
   loop:
     - "{{ docker_pki_folder }}"
     - "{{ docker_pki_folder }}/certs"
+    - "{{ docker_pki_folder }}/certs/revoked"
 
-- name: Template files
+- name: Template config files
   ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "{{ docker_pki_folder }}/{{ item }}"
@@ -56,6 +68,12 @@
   ansible.builtin.command:
     cmd: step ca bootstrap --ca-url https://localhost:9000 --fingerprint {{ pki_register_ca_finderprint.stdout }}
   when: not pki_register_ca_cert.stat.exists
+
+- name: revoke certs
+  include_tasks: revoke_certs.yml
+  loop: "{{ pki_revoke_fqdns }}"
+  when: pki_revoke_certs is true
+  tags: serial
 
 - name: Create certs
   include_tasks: generate_cersts.yml

@@ -1,2 +1,3 @@
 ---
 # defaults file for ubuntu_prepare
+prepare_apt_cache_server: 10.5.104.81

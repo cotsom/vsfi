@@ -1,0 +1,11 @@
+---
+# defaults file for haproxy
+haproxy_binds:
+  - name: web
+    bind_ports: [80, 443]
+    mode: http
+    proxy: [ host1:80, host2:80 ]
+  # - name: ssh
+  #   bind_ports: [ 2022 ]
+  #   mode: tcp
+  #   proxy: [ host3:22 ]

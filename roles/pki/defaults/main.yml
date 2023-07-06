@@ -5,3 +5,6 @@ pki_step_ca_password: qwerty
 
 pki_fqdns: [ 'default1.local', 'default2.local' ]
 pki_pull_certs: false
+
+pki_revoke_certs: false
+pki_revoke_fqdns: [ 'default2.local' ]

@@ -1,0 +1,36 @@
+---
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker haproxy folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ _docker_haproxy_folder }}"
+
+- name: Template files
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ _docker_haproxy_folder }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - "docker-compose.yml"
+    - "haproxy.cfg"
+  tags: template
+
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ _docker_haproxy_folder }}"
+  register: docker_compose_up

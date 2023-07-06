@@ -1,7 +1,0 @@
-all:
-  hosts:
-    main_host:
-      ansible_host: localhost
-      ansible_port: 22
-      ansible_ssh_pass: 4404Lisa4404
-      ansible_user: cotsom

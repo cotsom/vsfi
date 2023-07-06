@@ -1,0 +1,3 @@
+---
+# vars file for vault
+docker_vault_folder: /docker/vault

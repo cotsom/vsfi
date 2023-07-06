@@ -1,0 +1,3 @@
+---
+# vars file for haproxy
+_docker_haproxy_folder: /docker/haproxy

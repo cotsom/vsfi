@@ -1,9 +1,8 @@
 ---
-- name: Install dhcp and dns
-  hosts: dhcp
+- name: Install haproxy
+  hosts: haproxy
   become: true
   pre_tasks:
   roles:
     - geerlingguy.docker
-    - dhcp
-    - bind9
+    - haproxy

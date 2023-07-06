@@ -1,0 +1,170 @@
+---
+- name: Create Docker folder
+  ansible.builtin.file:
+    path: /docker
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Create Docker vault folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0777'
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ docker_vault_folder }}"
+    - "{{ docker_vault_folder }}/config"
+    - "{{ docker_vault_folder }}/data"
+    - "{{ docker_vault_folder }}/policies"
+
+- name: Copy files to VM
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ docker_vault_folder }}/{{ item }}"
+  loop:
+    - docker-compose.yml
+
+- name: Copy files to VM
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ docker_vault_folder }}/config/{{ item }}"
+  loop:
+    - config.hcl
+
+- name: Docker Compose up
+  ansible.builtin.command:
+    cmd: "docker compose up -d"
+    chdir: "{{ docker_vault_folder }}"
+  register: docker_compose_up
+
+- name: Initialize HashiCorp Vault
+  ansible.builtin.command: 
+    cmd: "docker compose exec vault vault operator init -key-shares=1 -key-threshold=1 -format=json"
+    chdir: "{{ docker_vault_folder }}"
+  register: vault_init
+  changed_when: vault_init.rc != 0
+  failed_when: vault_init.rc != 2 and vault_init.rc != 0
+
+- name: debug
+  ansible.builtin.debug:
+    msg: "{{ vault_init }}"
+
+- name: write unseal key b64
+  ansible.builtin.copy:
+    content: "{{ vault_init.stdout | from_json | json_query('unseal_keys_b64[0]') }}"
+    dest: "{{ docker_vault_folder }}/unseal.key"
+  when: vault_init.rc == 0
+
+- name: write root key
+  ansible.builtin.copy:
+    content: "{{ vault_init.stdout | from_json | json_query('root_token') }}"
+    dest: "{{ docker_vault_folder }}/root.key"
+  when: vault_init.rc == 0
+
+- name: slurp unseal key 
+  ansible.builtin.slurp:
+    src: "{{ docker_vault_folder }}/unseal.key"
+  register: slurp_unseal_key
+
+- name: slurp root key
+  ansible.builtin.slurp:
+    src: "{{ docker_vault_folder }}/root.key"
+  register: slurp_root_key
+
+- name: set unseal key flag
+  set_fact:
+    vault_unseal_key: "{{ slurp_unseal_key.content | b64decode }}"
+
+- name: set root key fact 
+  set_fact:
+    vault_root_key: "{{ slurp_root_key.content | b64decode }}"
+
+- name: Unseal HashiCorp Vault
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault operator unseal {{ vault_unseal_key }}"
+    chdir: "{{ docker_vault_folder }}"
+
+- name: Vault login
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault login token={{ vault_root_key }}"
+    chdir: "{{ docker_vault_folder }}"
+
+- name: enable pki
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault secrets enable pki"
+    chdir: "{{ docker_vault_folder }}"
+  changed_when: vault_init.rc != 0
+  failed_when: vault_init.rc != 2 and vault_init.rc != 0
+
+- name: Get stats of a file
+  ansible.builtin.stat:
+    path: "{{ docker_vault_folder }}/root_ca.crt"
+  register: register_file_root_ca_stat
+
+- name: generate root ca
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault write -format=json pki/root/generate/internal common_name=shebang.vsfi.local ttl=87600h"
+    chdir: "{{ docker_vault_folder }}"
+  register: vault_pki_root_ca
+  when: not register_file_root_ca_stat.stat.exists
+
+- name: generate root ca
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault write -format=json pki/root/generate/internal common_name=shebang.vsfi.local ttl=87600h"
+    chdir: "{{ docker_vault_folder }}"
+  register: vault_pki_root_ca
+  when: not register_file_root_ca_stat.stat.exists
+
+- name: Save root CA certificate to file
+  copy:
+    content: "{{ vault_pki_root_ca.stdout | from_json | json_query('data.certificate') }}"
+    dest: "{{ docker_vault_folder }}/root_ca.crt"
+    mode: 0644
+  when: not register_file_root_ca_stat.stat.exists
+
+
+- name: Generate intermediate CA
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault write -format=json pki/intermediate/generate/internal common_name=shebang.vsfi.local ttl=43800h"
+    chdir: "{{ docker_vault_folder }}"
+  register: vault_pki_intermediate_ca
+  # when: not register_file_root_ca_stat.stat.exists
+  tags: debug1
+
+- name: Sign intermediate CA with root CA
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault write -format=json pki/root/sign-intermediate csr=@pki_int.csr format=pem_bundle ttl=43800h"
+    chdir: "{{ docker_vault_folder }}"
+  # when: not register_file_root_ca_stat.stat.exists
+  tags: debug1
+
+- name: Save intermediate CA certificate to file
+  copy:
+    content: "{{ vault_pki_sign_intermediate_ca.stdout | from_json | json_query('data.certificate') }}"
+    dest: "{{ docker_vault_folder }}/intermediate_ca.crt"
+    mode: 0644
+  when: not register_file_root_ca_stat.stat.exists
+
+
+- name: Sign intermediate CA with root CA
+  ansible.builtin.command:
+    cmd: "docker compose exec vault vault write pki/config/urls issuing_certificates=\"http://127.0.0.1:8200/v1/pki/ca\" crl_distribution_points=\"http://127.0.0.1:8200/v1/pki/crl\""
+    chdir: "{{ docker_vault_folder }}"
+  when: vault_pki_sign_intermediate_ca.changed and not register_file_root_ca_stat.stat.exists
+
+# - name: Login and use the resulting token
+#   community.hashi_vault.vault_login:
+#     url: https://localhost:8201
+#     auth_method: token
+#     token: '{{ vault_root_key }}'
+#     token_validate: false
+#   register: login_data
+
+# - name: Enable PKI
+#   ansible.builtin.command:
+#     cmd: " docker compose exec vault vault secrets enable pki"
+#     chdir: "{{ docker_vault_folder }}"
+

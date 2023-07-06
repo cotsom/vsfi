@@ -17,13 +17,6 @@ all:
         ansible_user: user
         ansible_password: eve@123
         ansible_become_password: eve@123
-    # miron:
-    #   hosts:
-    #     miron-1:
-    #   vars:
-    #     ansible_user: user
-    #     ansible_password: eve@123
-    #     ansible_become_password: eve@123
     docker:
       children:
         docker_registry:
@@ -38,20 +31,19 @@ all:
         bind9:
           hosts:
             slave-3:
-            # miron-1:
         pki:
+          hosts:
+            slave-3:
+        vault:
           hosts:
             slave-3:
         haproxy:
           hosts:
-            slave-1:
-            slave-2:
             slave-3:
         dhcp:
           hosts:
             slave-3:
               dhcp_subnet: "10.200.106.0/24"
-            # miron-1:
       hosts:
     k3s_cluster:
       children:
