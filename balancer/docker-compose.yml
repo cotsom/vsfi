@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  traefik:
+    image: traefik:latest
+    command: --docker --docker.domain=localhost
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - web_zone
+    volumes:
+      - /run/docker.sock:/run/docker.sock
+      - ./traefik.yaml:/traefik.yaml
+      - ./tls.yaml:/tls.yaml
+      - ./acme.json:/acme.json
+    container_name: traefik
+    restart: always
+networks:
+  web_zone:
+      external: true

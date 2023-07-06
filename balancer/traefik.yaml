@@ -1,0 +1,18 @@
+entryPoints:
+    unsecure:
+        address: :80
+    secure:
+        address: :443
+
+certificatesResolvers:
+    myresolver:
+        acme:
+            email: admin@yourdomain.com
+            storage: acme.json
+            httpChallenge:
+                entryPoint: unsecure
+            
+providers:
+      file:
+        filename: tls.yaml
+        watch: true

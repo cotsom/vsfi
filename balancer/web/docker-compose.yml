@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  microbot1:
+    image: dontrebootme/microbot:v1
+    ports:
+      - 8000:80
+    networks:
+      - web_zone
+  microbot2:
+    image: dontrebootme/microbot:v1
+    ports:
+      - 8001:80
+    networks:
+      - web_zone
+networks:
+  web_zone:
+        external: true

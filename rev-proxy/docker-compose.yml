@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  microbot1:
+    image: dontrebootme/microbot:v1
+    labels:
+      - "traefik.enable=true"
+      - traefik.http.routers.microbot1.rule=Host(`microbot1.$DOMAIN`)
+      - traefik.http.services.microbot1.loadbalancer.server.port=80
+  microbot2:
+    image: dontrebootme/microbot:v1
+    labels:
+      - "traefik.enable=true"
+      - traefik.http.routers.microbot2.rule=Host(`microbot2.$DOMAIN`)
+      - traefik.http.services.microbot2.loadbalancer.server.port=80
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

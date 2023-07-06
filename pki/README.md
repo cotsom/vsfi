@@ -14,4 +14,24 @@
 
 ## Get certs for localhost domain
 
-`step ca certificate localhost localhost.crt localhost.key`
+```
+step ca certificate localhost localhost.crt localhost.key
+```
+
+## Get root cert
+
+`step ca root root_ca.crt`
+
+## Inspect cert
+
+`step certificate inspect --short localhost.crt`
+
+## Renew cert
+
+```
+step ca renew localhost.crt localhost.key
+```
+
+## Revoke cert
+
+`step ca revoke $(step certificate inspect --format=json localhost.crt | jq .serial_number | tr -d "\"")`
