@@ -11,6 +11,7 @@
     content: |
       domain           {{ dns_zone_name }}
       nameserver       {{ dns_server }}
+      
 - name: Create Docker folder
   ansible.builtin.file:
     path: /docker

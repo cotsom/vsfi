@@ -19,6 +19,7 @@ all:
       children:
         docker:
           children:
+            miron_docker:
             bind9:
               hosts:
                 dhcp_host:
@@ -55,6 +56,13 @@ all:
             node:        
               hosts:
                 node2:
+        miron_docker:
+          hosts:
+            esxi-srv-1:
+              ansible_host: 10.5.104.80
+              ansible_user: vsfiadm
+              ansible_password: anus228
+              ansible_sudo_pass: anus228
       vars:
         ansible_user: poteeadm
         ansible_password: Iloveyou

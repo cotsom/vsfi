@@ -11,3 +11,14 @@ dhcp_uplink_gateway:  "{{ dhcp_subnet | ansible.utils.ipmath(1) }}" # 1 of subne
 dhcp_range_left: "{{ dhcp_subnet | ansible.utils.ipmath(10) }}" # from 10
 dhcp_range_right:  "{{ dhcp_subnet | ansible.utils.ipmath(50) }}" # for 50
 
+dhcp_static_add: false
+dhcp_static_hosts:
+  - host: srv1
+    mac: 00:0c:29:b0:4e:21
+    addr: 10.5.104.80
+  - host: srv2
+    mac: 00:0c:29:b0:4e:22
+    addr: 10.5.104.81
+  - host: srv3
+    mac: 00:0c:29:b0:4e:23
+    addr: 10.5.104.82

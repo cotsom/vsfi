@@ -1,7 +1,7 @@
 version: '3'
 services:
   prometheus:
-    image: prom/prometheus
+    image: 10.5.104.20:5000/prom/prometheus
     restart: always
     ports:
       - 9090:9090
@@ -12,7 +12,7 @@ services:
       - ./alert.rules:/etc/prometheus/alert.rules
 
   alertmanager:
-    image: prom/alertmanager
+    image: 10.5.104.20:5000/prom/alertmanager
     restart: always
     ports:
       - 9093:9093
@@ -22,7 +22,7 @@ services:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
 
   node-exporter:
-    image: prom/node-exporter
+    image: 10.5.104.20:5000/prom/node-exporter
     restart: always
     ports:
       - 9100:9100
@@ -36,7 +36,7 @@ services:
       - /:/rootfs:ro
 
   grafana:
-    image: grafana/grafana
+    image: 10.5.104.20:5000/grafana/grafana
     restart: always
     ports:
       - 3000:3000

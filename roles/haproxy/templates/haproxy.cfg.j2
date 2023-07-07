@@ -13,17 +13,10 @@ listen stats
   stats enable
   stats auth admin:admin
 
-{% for item in haproxy_binds %}
-frontend {{ item.name }}
-  {% for port in item.bind_ports %}
-  bind *:{{ port }}
-  {% endfor %}
-  mode {{ item.mode }}
-  default_backend {{ item.name }}
+# frontend myfrontend
+#     bind *:80
+#     default_backend myservers
 
-
-backend {{ item.name }}
-{% for server in item.proxy %}
-  server server{{ loop.index }} {{ server }}
-{% endfor %}
-{% endfor %}
+# backend myservers
+#     server server1 microbot1
+#     server server2 microbot2

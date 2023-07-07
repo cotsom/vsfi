@@ -1,14 +1,31 @@
 ---
 # tasks file for ubuntu_prepare
-# - name: Add apt proxy
-#   copy:
-#     dest: /etc/apt/apt.conf.d/00aptproxy
-#     content: |
-#       Acquire::http::Proxy "http://{{ prepare_apt_cache_server }}:3142";
+- name: Add apt proxy
+  copy:
+    dest: /etc/apt/apt.conf.d/00aptproxy
+    content: Acquire::http::Proxy "http://{{ prepare_apt_cache_server }}:3142";
+
+- name: Create a directory for docker
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '755'
+    owner: root
+    group: root
+
+- name: add docker registry
+  copy:
+    dest: /etc/docker/daemon.json
+    content: | 
+      {
+        "insecure-registries" : ["http://10.5.104.20:5000"]
+      }
+  register: add_docker_registry
 
 - name: apt update cache
   ansible.builtin.apt:
     update_cache: yes
+  # failed_when: false
 
 - name: Install a list of packages
   ansible.builtin.apt:
@@ -18,4 +35,3 @@
 # - python3-pip
   
 # - name: Install pip packages
-  

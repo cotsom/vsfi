@@ -1,1 +1,11 @@
 dhcp_subnet: "10.5.104.0/24"
+
+
+dhcp_static_add: true
+dhcp_static_hosts:
+  - host: srv1
+    mac: 00:0c:29:b0:4e:21
+    addr: 10.5.104.80
+  - host: loxvm
+    mac: 000:0c:29:e0:33:c8
+    addr: 10.5.104.20

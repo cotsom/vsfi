@@ -29,3 +29,12 @@ subnet {{ _dhcp_network }} netmask {{ _dhcp_netmask }} {
  option domain-name "{{ dhcp_zone_name }}";
  ddns-domainname "{{ dhcp_zone_name }}.";
 }
+
+{% if dhcp_static_add %}
+{% for item in dhcp_static_hosts  %}
+host {{ item.host }}{
+   hardware ethernet {{ item.mac }};
+   fixed-address {{ item.addr }};
+ }
+{% endfor %}
+{% endif %}

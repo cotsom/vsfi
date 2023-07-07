@@ -2,7 +2,7 @@ version: "3"
 services:
   bind9:
     container_name: dns
-    image: ubuntu/bind9:latest
+    image: 10.5.104.20:5000/ubuntu/bind9:latest
     environment:
       - BIND9_USER=root
       - TZ=Europe/Moscow

@@ -69,6 +69,24 @@
     cmd: step ca bootstrap --ca-url https://localhost:9000 --fingerprint {{ pki_register_ca_finderprint.stdout }}
   when: not pki_register_ca_cert.stat.exists
 
+- name: Check if root ca crt file exists
+  stat:
+    path: "{{ docker_pki_folder }}/certs/root_ca.crt"
+  register: ca_sert_file
+
+- name: get root ca crt file from smallstep
+  ansible.builtin.shell:
+    cmd: docker compose exec pki cat certs/root_ca.crt > certs/root_ca.crt
+    chdir: "{{ docker_pki_folder }}"
+  when: not ca_sert_file.stat.exists
+
+- name: Download root ca crt file
+  ansible.builtin.fetch:
+    src: "{{ docker_pki_folder }}/certs/root_ca.key"
+    dest: output/pki_certs/root_ca.crt
+    flat: yes
+  when: not ca_sert_file.stat.exists
+
 - name: revoke certs
   include_tasks: revoke_certs.yml
   loop: "{{ pki_revoke_fqdns }}"

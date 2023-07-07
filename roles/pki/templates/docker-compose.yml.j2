@@ -1,7 +1,7 @@
 version: '3'  
 services:
   pki:
-    image: smallstep/step-ca
+    image: 10.5.104.20:5000/smallstep/step-ca
     environment:
       - DOCKER_STEPCA_INIT_NAME=Smallstep
       - DOCKER_STEPCA_INIT_DNS_NAMES=localhost,{{ pki_dns_name }}

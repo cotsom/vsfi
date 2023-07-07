@@ -1,11 +1,10 @@
 version: '3.9'
 services:
   haproxy:
-      image: haproxy:alpine3.17
+      image: 10.5.104.20:5000/haproxy:alpine3.17
       container_name: haproxy
       ports:
-{% for item in haproxy_binds | map(attribute='bind_ports') | flatten | unique | list %}
-        - {{ item }}:{{ item }}
-{% endfor %}
+        - 80:80
+        - 443:443
       volumes:
         - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
